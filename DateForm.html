@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #fda4b1;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        h1 {
+            color: #d32f2f;
+            font-size: 2.5em;
+            transition: color 0.3s ease;
+        }
+
+        .name-input {
+            margin-top: 15px;
+            display: flex;
+            justify-content: left;
+            border-radius: 20px;
+            padding: 10px ;
+            gap: 10px;
+        }
+          .email-input {
+            
+            display: flex;
+            justify-content: left;
+            border-radius: 20px;
+            padding: 10px ;
+            gap: 10px;
+        }
+
+        input {
+            padding: 8px;
+            font-size: 1em;
+            border: 5px solid #c80707;
+            border-radius: 5px;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        #yesButton {
+            background-color: #4caf50;
+            border: 4px solid #238027;
+            color: white;
+        }
+
+        #yesButton:hover {
+            background-color: #45a049;
+        }
+
+        #noButton {
+            background-color: #f44336;
+            border: 4px solid #d32f2f;
+            color: white;
+        }
+
+        #noButton:hover {
+            background-color: #e53935;
+            border: 4px solid #d32f2f;
+        }
+        #NosWritten{
+            position: fixed;
+            color: #ccc;
+            bottom: 10px;
+             flex-direction: column; /* Stacks children vertically */
+             justify-content: flex-end; /* Aligns content to the bottom of the container */
+            
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="valentineQuestion">Will you be my Valentine's?</h1>
+        
+        <div class="name-input">
+           <!-- Input field for name -->
+<input type="text" id="nameInput" placeholder="Enter your name" required>
+<p id="warningMessage" style="color: red; display: none;">Please enter your Name first</p>
+        </div>
+         <div class="email-input">
+           <!-- Input field for name -->
+<input type="text" id="emailInput" placeholder="Enter your email" required>
+<p id="warningMessage" style="color: red; display: none;">Please enter your Email</p>
+        </div>
+
+        <div class="buttons">
+            <button id="yesButton">Yes</button>
+            <button id="noButton">No</button>
+        </div>
+    </div>
+
+    
+   
+</body>
+
+<div id="NosWritten">
+    <p id ="numberofno">Number of times No was chosen:  = </p>
+    
+</div>
+
+ <script>
+        const NosWritten = document.getElementById('NosWritten');
+        
+        const noButton = document.getElementById('noButton');
+        const yesButton = document.getElementById('yesButton');
+        const valentineQuestion = document.getElementById('valentineQuestion');
+        const buttonsContainer = document.querySelector('.buttons');
+        const nameInput = document.getElementById('nameInput');
+        const emailInput = document.getElementById('emailInput');
+        let nos = document.getElementById('numberofno');
+        let nocounter=0;
+        function getRandomPosition() {
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 50);
+            return { x, y };
+        }
+        
+       
+
+        function createNewNoButton() {
+            const newNoButton = document.createElement('button');
+            newNoButton.textContent = 'No';
+            newNoButton.style.backgroundColor = '#f44336';
+            newNoButton.style.color = 'white';
+            newNoButton.style.border = `4px solid #d32f2f`;
+            newNoButton.style.position = 'absolute';
+            newNoButton.style.cursor = 'pointer';
+            nocounter++;
+            nos.innerText = 'Number of times No was chosen: ' + nocounter;
+            const { x, y } = getRandomPosition();
+            newNoButton.style.left = `${x}px`;
+            newNoButton.style.top = `${y}px`;
+
+            newNoButton.addEventListener('mouseover', () => {
+                const { x: newX, y: newY } = getRandomPosition();
+                newNoButton.style.left = `${newX}px`;
+                newNoButton.style.top = `${newY}px`;
+                createNewNoButton();
+                increaseYesButtonSize();
+               
+            });
+
+            document.body.appendChild(newNoButton);
+        }
+
+        function increaseYesButtonSize() {
+            const currentSize = parseFloat(window.getComputedStyle(yesButton).fontSize);
+            yesButton.style.fontSize = `${currentSize + 2}px`;
+        }
+
+        
+
+        noButton.addEventListener('mouseover', () => {
+            const { x, y } = getRandomPosition();
+            noButton.style.position = 'absolute';
+            noButton.style.left = `${x}px`;
+            noButton.style.top = `${y}px`;
+
+           
+            createNewNoButton();
+            increaseYesButtonSize();
+           
+        });
+        
+
+yesButton.addEventListener('click', async () => {
+    let name = nameInput.value.trim();
+    let emailed = emailInput.value.trim();
+    let warningMessage = document.getElementById("warningMessage");
+
+    if (name === "") {
+        warningMessage.style.display = "block"; // Show warning text
+        return;
+    }
+
+    valentineQuestion.textContent = `Thank you very much, ${name} `;
+    valentineQuestion.style.color = '#4caf50';
+
+    // Remove input field and buttons
+    nameInput.remove();
+    emailInput.remove()
+    warningMessage.remove();
+    buttonsContainer.remove();
+    document.querySelectorAll('button').forEach(button => button.remove());
+    
+    // ✅ Silent submission via AJAX
+    // await fetch("https://formspree.io/f/myzkjjbz", {
+    //     method: "POST",
+    //     headers: {
+    //         "Content-Type": "application/json"
+    //     },
+    //     body: JSON.stringify({
+    //         email: emailed.value,  // Required for Formspree
+    //         response: "Yes; Number of No:" + NosWritten.innerText,
+    //         name: name
+    //     })
+    // });
+});
+    </script>
+
+   
+{# Email #}
+<script>
+
+     function sendMail(){
+        let parms = {
+            name: document.getElementById("nameInput").value,
+            email: document.getElementById("emailInput").value,
+            subject: "Valentine's Day",
+            message:document.getElementById("NosWritten").value,  
+
+        }
+
+        emailjs.send("service_uri1o0h","template_3b6nf3i",parms ).then(alert("email sent")) 
+     }
+</script>
+
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init({
+        publicKey: "ObAqkYaUZK_6TkBXF",
+      });
+   })();
+</script>
+</html>

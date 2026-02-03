@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secret</title>
+
+<style>
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #fda4b1;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.container {
+    text-align: center;
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,.2);
+}
+
+h1 {
+    color: #d32f2f;
+    font-size: 2.3em;
+}
+
+.input-group {
+    margin-top: 10px;
+}
+
+input {
+    padding: 8px;
+    width: 220px;
+    font-size: 1em;
+    border: 3px solid #c80707;
+    border-radius: 5px;
+}
+
+.warning {
+    color: red;
+    display: none;
+    font-size: .9em;
+}
+
+.buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+button {
+    padding: 10px 25px;
+    font-size: 1.2em;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+#yesButton {
+    background: #4caf50;
+    border: 4px solid #238027;
+    color: white;
+}
+
+#noButton {
+    background: #f44336;
+    border: 4px solid #d32f2f;
+    color: white;
+}
+
+#NosWritten {
+    position: fixed;
+    bottom: 10px;
+    color: #333;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1 id="question">Will you be my Valentine's?</h1>
+
+    <div class="input-group">
+        <input id="nameInput" placeholder="💖Your Name here💖">
+        <p id="nameWarning" class="warning">Please enter your name</p>
+    </div>
+
+    <div class="input-group">
+        <input id="emailInput" placeholder="💖Your Email darling💖">
+        <p id="emailWarning" class="warning">Please enter your email</p>
+    </div>
+
+    <div class="buttons">
+        <button id="yesButton">Yes</button>
+        <button id="noButton">No</button>
+    </div>
+</div>
+
+<div id="NosWritten">
+    <p id="noCount">Number of times No was chosen: 0</p>
+</div>
+
+<!-- EMAILJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+emailjs.init("ObAqkYaUZK_6TkBXF");
+</script>
+
+<script>
+const yesBtn = document.getElementById("yesButton");
+const noBtn = document.getElementById("noButton");
+const nameInput = document.getElementById("nameInput");
+const emailInput = document.getElementById("emailInput");
+const question = document.getElementById("question");
+const buttons = document.querySelector(".buttons");
+
+let noCounter = 0;
+let wouldDate = "Would Date";
+
+    if(noCounter >=20){
+            wouldDate= "Will Not Definitely Date"
+        }
+    else if(noCounter >= 10){
+        wouldDate = "Probably Not";
+    }
+
+function randomPos(buttonWidth = 80, buttonHeight = 40) {
+    const maxX = window.innerWidth - buttonWidth - 10; // leave 10px margin
+    const maxY = window.innerHeight - buttonHeight - 10;
+    return {
+        x: Math.random() * maxX,
+        y: Math.random() * maxY
+    };
+}
+
+function growYes() {
+    let size = parseFloat(getComputedStyle(yesBtn).fontSize);
+    yesBtn.style.fontSize = (size + 2) + "px";
+}
+
+function spawnNo() {
+    const btn = document.createElement("button");
+    btn.textContent = "No";
+    btn.style.position = "absolute";
+    btn.style.background = "#f44336";
+    btn.style.color = "#fff";
+    btn.style.border = "4px solid #d32f2f";
+    btn.style.padding = "10px 20px";
+
+    // Use actual size
+    const width = 80;  // approximate width
+    const height = 40; // approximate height
+    const {x, y} = randomPos(width, height);
+    btn.style.left = x + "px";
+    btn.style.top = y + "px";
+
+    btn.onmouseover = () => {
+        const pos = randomPos(width, height);
+        btn.style.left = pos.x + "px";
+        btn.style.top = pos.y + "px";
+        incrementNo();
+        growYes();
+        spawnNo();
+    };
+
+    document.body.appendChild(btn);
+}
+
+function incrementNo() {
+    noCounter++;
+    document.getElementById("noCount").innerText =
+        "Number of times No was chosen: " + noCounter;
+}
+
+noBtn.onmouseover = () => {
+    const pos = randomPos();
+    noBtn.style.position = "absolute";
+    noBtn.style.left = pos.x+"px";
+    noBtn.style.top = pos.y+"px";
+    incrementNo();
+    spawnNo();
+    growYes();
+};
+
+yesBtn.onclick = () => {
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+
+    if (!name) {
+        document.getElementById("nameWarning").style.display = "block";
+        return;
+    }
+
+    if (!email) {
+        document.getElementById("emailWarning").style.display = "block";
+        return;
+    }
+
+    // SEND EMAIL
+    emailjs.send("service_uri1o0h", "template_3b6nf3i", {
+        name: name,
+        email: email,
+        subject: "Valentine's Day 💌",
+        message: `No was clicked: ${noCounter} times. Verdict: ${wouldDate}` 
+    });
+
+    question.innerText = `Thank you, ${name} 💖. Details will be given soon`;
+    question.style.color = "#4caf50";
+
+    buttons.remove();
+    nameInput.remove();
+    emailInput.remove();
+};
+</script>
+
+</body>
+</html>
